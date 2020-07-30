@@ -20,6 +20,6 @@ const reviewSchema = new Schema({
         ref: 'Restaurant',
         required: true
     }
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('Review', reviewSchema);
