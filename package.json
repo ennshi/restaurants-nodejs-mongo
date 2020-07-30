@@ -1,0 +1,27 @@
+{
+  "name": "restaurants-nodejs-mongo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ennshi/restaurants-nodejs-mongo.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ennshi/restaurants-nodejs-mongo/issues"
+  },
+  "homepage": "https://github.com/ennshi/restaurants-nodejs-mongo#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.9.26"
+  }
+}
