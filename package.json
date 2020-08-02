@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "env-cmd -f ./config/test.env jest --watch --runInBand",
     "dev": "env-cmd -f ./config/dev.env nodemon app.js",
     "start": "node app.js"
   },
@@ -20,6 +20,7 @@
   "homepage": "https://github.com/ennshi/restaurants-nodejs-mongo#readme",
   "devDependencies": {
     "env-cmd": "^10.1.0",
+    "jest": "^26.2.2",
     "nodemon": "^2.0.4"
   },
   "dependencies": {
