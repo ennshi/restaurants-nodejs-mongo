@@ -15,3 +15,5 @@ router.delete('/profile/:userId', userController.deleteUser);
 // router.post('/reviews');
 // router.patch('/reviews/:reviewId');
 // router.delete('/reviews/:reviewId');
+
+module.exports = router;
