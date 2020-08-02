@@ -86,3 +86,22 @@ exports.deleteUser = (req, res, next) => {
         })
         .catch((err) => console.log(err));
 };
+
+exports.updateUserStatus = (req, res, next) => {
+    const userId = req.params.userId;
+    const {status} = req.body;
+    User.findById(userId)
+        .then(user => {
+            if(!user) {
+                return res.status(404).json({message: "No user found"});
+            }
+            Object.assign(user, {
+                status
+            });
+            return user.save();
+        })
+        .then(user => {
+            res.status(200).json(user);
+        })
+        .catch((err) => console.log(err));
+};

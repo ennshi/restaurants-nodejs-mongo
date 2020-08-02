@@ -13,7 +13,7 @@ router.delete('/restaurants/:restaurantId', restaurantController.deleteRestauran
 
 router.get('/users', userController.getUsers);
 router.get('/users/:userId', userController.getUser);
-router.put('/users/:userId', userController.updateUser);
+router.put('/users/:userId', userController.updateUserStatus);
 router.delete('/users/:userId', userController.deleteUser);
 
 // router.get('/reviews');
