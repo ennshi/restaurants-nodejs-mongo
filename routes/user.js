@@ -2,13 +2,14 @@ const express = require('express');
 
 const router = express.Router();
 const userController = require('../controllers/user');
+const isValidUser = require('../middlewares/validation/user');
 
 // router.get('/restaurants');
 // router.get('/restaurants/:restaurantId');
 
-router.post('/profile', userController.createUser);
+router.post('/profile', isValidUser, userController.createUser);
 router.get('/profile/:userId', userController.getUser);
-router.put('/profile/:userId', userController.updateUser);
+router.put('/profile/:userId', isValidUser, userController.updateUser);
 router.delete('/profile/:userId', userController.deleteUser);
 
 // router.get('/reviews');

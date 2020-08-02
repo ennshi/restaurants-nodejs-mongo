@@ -21,16 +21,22 @@ exports.getUser = (req, res, next) => {
 };
 
 exports.createUser = (req, res, next) => {
-    // if(!req.errors.isEmpty) {
-    //     return res.status(422).json({errors: req.errors.errors});
-    // }
+    if (!req.errors.isEmpty) {
+        return res.status(422).json({errors: req.errors.errors});
+    }
     const {username, email, password} = req.body;
-    const user = new User({
-        username: username.trim(),
-        email: email.trim(),
-        password: password.trim()
-    });
-    user.save()
+    return User.findOne({email})
+        .then((userInDB) => {
+            if (userInDB) {
+                return res.status(422).json({errors: {email: "Email address already exists"}});
+            }
+            const user = new User({
+                username: username.trim(),
+                email: email.trim(),
+                password: password.trim()
+            });
+            return user.save();
+        })
         .then(user => {
             res.status(201).json(user);
         })
@@ -38,9 +44,9 @@ exports.createUser = (req, res, next) => {
 };
 
 exports.updateUser = (req, res, next) => {
-    // if(!req.errors.isEmpty) {
-    //     return res.status(422).json({errors: req.errors.errors});
-    // }
+    if(!req.errors.isEmpty) {
+         return res.status(422).json({errors: req.errors.errors});
+    }
     const userId = req.params.userId;
     const {username, email, password} = req.body;
     User.findById(userId)
