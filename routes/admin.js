@@ -7,7 +7,7 @@ const isValidRestaurant = require('../middlewares/validation/restaurant');
 router.get('/restaurants', restaurantController.getRestaurants);
 router.get('/restaurants/:restaurantId', restaurantController.getRestaurant);
 router.post('/restaurants', isValidRestaurant, restaurantController.createRestaurant);
-router.put('/restaurants/:restaurantId', restaurantController.updateRestaurant);
+router.put('/restaurants/:restaurantId', isValidRestaurant, restaurantController.updateRestaurant);
 router.delete('/restaurants/:restaurantId', restaurantController.deleteRestaurant);
 
 // router.get('/users');

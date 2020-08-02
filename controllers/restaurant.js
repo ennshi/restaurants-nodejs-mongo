@@ -26,13 +26,13 @@ exports.createRestaurant = (req, res, next) => {
     }
     const {name, description, country, city, address, photoUrl} = req.body;
     const restaurant = new Restaurant({
-        name,
-        description,
+        name: name.trim(),
+        description: description.trim(),
         photoUrl,
         location: {
             country,
             city,
-            address
+            address: address.trim()
         }
     });
     restaurant.save()
@@ -43,6 +43,9 @@ exports.createRestaurant = (req, res, next) => {
 };
 
 exports.updateRestaurant = (req, res, next) => {
+    if(!req.errors.isEmpty) {
+        return res.status(422).json({errors: req.errors.errors});
+    }
     const restaurantId = req.params.restaurantId;
     const {name, description, country, city, address, photoUrl} = req.body;
     Restaurant.findById(restaurantId)
@@ -51,13 +54,13 @@ exports.updateRestaurant = (req, res, next) => {
                 res.status(404).json({message: "No restaurant found"});
             }
             Object.assign(restaurant, {
-                name,
-                description,
+                name: name.trim(),
+                description: description.trim(),
                 photoUrl,
                 location: {
                     country,
                     city,
-                    address
+                    address: address.trim()
                 }
             });
             return restaurant.save();
