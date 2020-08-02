@@ -10,7 +10,7 @@ exports.isValidEmail = (trimmedEmail) => {
     return regexp.test(trimmedEmail);
 };
 
-exports.isStrongPassword = (trimmedPassword) => {
+exports.isValidPassword = (trimmedPassword) => {
     const regexp = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{7,15}$/;
     return regexp.test(trimmedPassword);
 };
