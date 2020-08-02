@@ -3,9 +3,10 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/user');
 const isValidUser = require('../middlewares/validation/user');
+const restaurantController = require('../controllers/restaurant');
 
-// router.get('/restaurants');
-// router.get('/restaurants/:restaurantId');
+router.get('/restaurants', restaurantController.getRestaurants);
+router.get('/restaurants/:restaurantId', restaurantController.getRestaurant);
 
 router.post('/profile', isValidUser, userController.createUser);
 router.get('/profile/:userId', userController.getUser);
