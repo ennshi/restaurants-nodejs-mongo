@@ -21,6 +21,9 @@ exports.getRestaurant = (req, res, next) => {
 };
 
 exports.createRestaurant = (req, res, next) => {
+    if(!req.errors.isEmpty) {
+        return res.status(422).json({errors: req.errors.errors});
+    }
     const {name, description, country, city, address, photoUrl} = req.body;
     const restaurant = new Restaurant({
         name,

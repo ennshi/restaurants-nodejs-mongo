@@ -2,10 +2,11 @@ const express = require('express');
 
 const router = express.Router();
 const restaurantController = require('../controllers/restaurant');
+const isValidRestaurant = require('../middlewares/validation/restaurant');
 
 router.get('/restaurants', restaurantController.getRestaurants);
 router.get('/restaurants/:restaurantId', restaurantController.getRestaurant);
-router.post('/restaurants', restaurantController.createRestaurant);
+router.post('/restaurants', isValidRestaurant, restaurantController.createRestaurant);
 router.put('/restaurants/:restaurantId', restaurantController.updateRestaurant);
 router.delete('/restaurants/:restaurantId', restaurantController.deleteRestaurant);
 
