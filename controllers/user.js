@@ -1,3 +1,5 @@
+const bcrypt = require('bcryptjs');
+
 const User = require('../models/user');
 
 exports.getUsers = (req, res, next) => {
@@ -30,10 +32,13 @@ exports.createUser = (req, res, next) => {
             if (userInDB) {
                 return res.status(422).json({errors: {email: "Email address already exists"}});
             }
+            return bcrypt.hash(password.trim(), 12);
+        })
+        .then(hashedPass => {
             const user = new User({
                 username: username.trim(),
                 email: email.trim(),
-                password: password.trim()
+                password: hashedPass
             });
             return user.save();
         })
