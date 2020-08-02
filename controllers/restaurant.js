@@ -13,7 +13,7 @@ exports.getRestaurant = (req, res, next) => {
     Restaurant.findById(restaurantId)
         .then(restaurant => {
             if(!restaurant) {
-                res.status(404).json({message: "No restaurant found"});
+                return res.status(404).json({message: "No restaurant found"});
             }
             res.status(200).json(restaurant);
         })
@@ -51,7 +51,7 @@ exports.updateRestaurant = (req, res, next) => {
     Restaurant.findById(restaurantId)
         .then(restaurant => {
             if(!restaurant) {
-                res.status(404).json({message: "No restaurant found"});
+                return res.status(404).json({message: "No restaurant found"});
             }
             Object.assign(restaurant, {
                 name: name.trim(),
