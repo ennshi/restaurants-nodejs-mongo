@@ -1,15 +1,17 @@
 const express = require('express');
 
 const router = express.Router();
+const userController = require('../controllers/user');
 
-router.get('/restaurants');
-router.get('/restaurants/:restaurantId');
+// router.get('/restaurants');
+// router.get('/restaurants/:restaurantId');
 
-router.get('/profile/:userId');
-router.patch('/profile/:userId');
-router.delete('/profile/:userId');
+router.post('/profile', userController.createUser);
+router.get('/profile/:userId', userController.getUser);
+router.put('/profile/:userId', userController.updateUser);
+router.delete('/profile/:userId', userController.deleteUser);
 
-router.get('/reviews');
-router.post('/reviews');
-router.patch('/reviews/:reviewId');
-router.delete('/reviews/:reviewId');
+// router.get('/reviews');
+// router.post('/reviews');
+// router.patch('/reviews/:reviewId');
+// router.delete('/reviews/:reviewId');
