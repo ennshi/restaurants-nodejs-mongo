@@ -1,15 +1,23 @@
 const express = require('express');
 
 const router = express.Router();
+const userController = require('../controllers/user');
+const isValidUser = require('../middlewares/validation/user');
+const restaurantController = require('../controllers/restaurant');
+const reviewController = require('../controllers/review');
+const isValidReview = require('../middlewares/validation/review');
 
-router.get('/restaurants');
-router.get('/restaurants/:restaurantId');
+router.get('/restaurants', restaurantController.getRestaurants);
+router.get('/restaurants/:restaurantId', restaurantController.getRestaurant);
 
-router.get('/profile/:userId');
-router.patch('/profile/:userId');
-router.delete('/profile/:userId');
+router.post('/profile', isValidUser, userController.createUser);
+router.get('/profile/:userId', userController.getUser);
+router.put('/profile/:userId', isValidUser, userController.updateUser);
+router.delete('/profile/:userId', userController.deleteUser);
 
-router.get('/reviews');
-router.post('/reviews');
-router.patch('/reviews/:reviewId');
-router.delete('/reviews/:reviewId');
+router.get('/reviews', reviewController.getReviews);
+router.post('/reviews', isValidReview, reviewController.createReview);
+router.put('/reviews/:reviewId', isValidReview, reviewController.updateReview);
+router.delete('/reviews/:reviewId', reviewController.deleteReview);
+
+module.exports = router;
