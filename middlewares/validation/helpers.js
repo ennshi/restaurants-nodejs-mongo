@@ -14,3 +14,7 @@ exports.isValidPassword = (trimmedPassword) => {
     const regexp = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{7,15}$/;
     return regexp.test(trimmedPassword);
 };
+
+exports.isValidRating = (number, maxNumber) => {
+    return (number >= 0) && (number <= maxNumber);
+};
