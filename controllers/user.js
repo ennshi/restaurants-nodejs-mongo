@@ -27,6 +27,7 @@ exports.createUser = (req, res, next) => {
         return res.status(422).json({errors: req.errors.errors});
     }
     const {username, email, password} = req.body;
+    const photoUrl = req.body.photoUrl || '/images/default.png';
     return User.findOne({email})
         .then((userInDB) => {
             if (userInDB) {
@@ -38,7 +39,8 @@ exports.createUser = (req, res, next) => {
             const user = new User({
                 username: username.trim(),
                 email: email.trim(),
-                password: hashedPass
+                password: hashedPass,
+                photoUrl
             });
             return user.save();
         })
