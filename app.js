@@ -21,7 +21,7 @@ app.use((req, res, next) => {
 });
 
 mongoose.connect(process.env.MONGODB_URL,
-    { useNewUrlParser: true, useUnifiedTopology: true })
+    { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
     .then(() => {
         app.listen(port, () => console.log('Server is up'));
     })
