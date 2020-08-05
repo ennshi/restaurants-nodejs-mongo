@@ -57,32 +57,40 @@ exports.updateUser = (req, res, next) => {
     const userId = req.userId || req.params.userId;
     const { username, email, password } = req.body;
     const photoUrl = req.body.photoUrl || '/images/default.png';
+    let currentUser;
     User.findById(userId)
         .then(user => {
-            if(!user) {
+            if (!user) {
                 return res.status(404).json({message: "No user found"});
             }
+            currentUser = user;
+            return User.findOne({email});
+        })
+        .then(user => {
+            if(user && user._id.toString() !== userId ) {
+                return res.status(422).json({errors: {email: "Email address already exists"}});
+            }
             if(!password) {
-                Object.assign(user, {
+                Object.assign(currentUser, {
                     username: username.trim(),
                     email: email.trim(),
                     photoUrl
                 });
-                return user.save();
+                return currentUser.save();
             }
             bcrypt.hash(password.trim(), 12)
                 .then(hashedPass => {
-                    const user = new User({
+                    Object.assign(currentUser, {
                         username: username.trim(),
                         email: email.trim(),
                         password: hashedPass,
                         photoUrl
                     });
-                    return user.save();
+                    return currentUser.save();
                 })
         })
-        .then(user => {
-            res.status(200).json(user);
+        .then(() => {
+            res.status(200).json(currentUser);
         })
         .catch((err) => console.log(err));
 };
