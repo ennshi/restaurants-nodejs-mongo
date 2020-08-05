@@ -11,11 +11,11 @@ exports.getReviews = (req, res, next) => {
 };
 
 exports.createReview = (req, res, next) => {
-    // if(!req.errors.isEmpty) {
-    //     return res.status(422).json({errors: req.errors.errors});
-    // }
+    if(!req.errors.isEmpty) {
+        return res.status(422).json({errors: req.errors.errors});
+    }
     const {text, rating, restaurant} = req.body;
-    const creator = '5f2959703154ab111c2d405b';
+    const creator = req.userId;
     const review = new Review({
         text,
         rating,
@@ -44,15 +44,18 @@ exports.createReview = (req, res, next) => {
 };
 
 exports.updateReview = (req, res, next) => {
-    // if(!req.errors.isEmpty) {
-    //     return res.status(422).json({errors: req.errors.errors});
-    // }
+    if(!req.errors.isEmpty) {
+        return res.status(422).json({errors: req.errors.errors});
+    }
     const reviewId = req.params.reviewId;
     const {text, rating} = req.body;
     Review.findById(reviewId)
         .then(review => {
             if(!review) {
                 return res.status(404).json({message: "No review found"});
+            }
+            if(review.creator.toString() !== req.userId) {
+                return res.status(401).json({message: "Authorization failed"});
             }
             Object.assign(review, {
                 text: text.trim(),
@@ -68,7 +71,7 @@ exports.updateReview = (req, res, next) => {
 
 exports.deleteReview = (req, res, next) => {
     const reviewId = req.params.reviewId;
-    const userId = '5f2959703154ab111c2d405b';
+    const userId = req.userId;
     let restaurantId;
     Review.findById(reviewId)
         .then(review => {
@@ -77,6 +80,9 @@ exports.deleteReview = (req, res, next) => {
                 // const error = new Error('No review found');
                 // error.statusCode = 404;
                 // throw error;
+            }
+            if(review.creator.toString() !== req.userId) {
+                return res.status(401).json({message: "Authorization failed"});
             }
             restaurantId = review.restaurant;
             return Review.findByIdAndRemove(reviewId);

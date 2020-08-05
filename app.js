@@ -4,14 +4,16 @@ const mongoose = require('mongoose');
 
 const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/user');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 const port = process.env.PORT;
 
 app.use(bodyParser.json());
 
-app.use('/', userRoutes);
+app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
+app.use('/', userRoutes);
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
