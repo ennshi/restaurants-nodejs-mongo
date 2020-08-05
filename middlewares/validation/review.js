@@ -3,10 +3,10 @@ const {isLength, isValidRating} = require('./helpers');
 const isValidReview = (req, res, next) => {
     const errors = {};
     const {text, rating} = req.body;
-    if(isLength(text.trim(), {min: 10, max: 300})){
+    if(!isLength(text.trim(), {min: 10, max: 300})){
         errors.text = "Please provide a description 10-300 characters long";
     }
-    if(isValidRating(rating, 5)) {
+    if(!isValidRating(rating, 5)) {
         errors.rating = "Rating must be between 0 and 5";
     }
     const isEmpty = !Object.keys(errors).length;
