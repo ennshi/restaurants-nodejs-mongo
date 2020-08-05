@@ -9,10 +9,10 @@ const isValidUser = (req, res, next) => {
     if(!isValidEmail(email.trim())) {
         errors.email = "Please provide a valid email address";
     }
-    if(!isValidPassword(password.trim())) {
+    if(password && !isValidPassword(password.trim())) {
         errors.password = "Password must be between 7 to 15 characters and contain at least one numeric digit and a special character";
     }
-    if(password !== repeatedPassword) {
+    if(password && (password !== repeatedPassword)) {
         errors.repeatedPassword = "Passwords must match";
     }
     const isEmpty = !Object.keys(errors).length;
