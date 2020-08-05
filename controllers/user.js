@@ -11,7 +11,7 @@ exports.getUsers = (req, res, next) => {
 };
 
 exports.getUser = (req, res, next) => {
-    const userId = req.params.userId;
+    const userId = req.userId || req.params.userId;
     User.findById(userId)
         .then(user => {
             if(!user) {
@@ -54,7 +54,7 @@ exports.updateUser = (req, res, next) => {
     if(!req.errors.isEmpty) {
          return res.status(422).json({errors: req.errors.errors});
     }
-    const userId = req.params.userId;
+    const userId = req.userId || req.params.userId;
     const {username, email, password} = req.body;
     User.findById(userId)
         .then(user => {
@@ -75,7 +75,7 @@ exports.updateUser = (req, res, next) => {
 };
 
 exports.deleteUser = (req, res, next) => {
-    const userId = req.params.userId;
+    const userId = req.userId || req.params.userId;
     User.findById(userId)
         .then(user => {
             if(!user) {
