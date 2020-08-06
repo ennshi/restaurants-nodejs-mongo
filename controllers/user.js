@@ -7,7 +7,12 @@ exports.getUsers = (req, res, next) => {
         .then(users => {
             res.status(200).json(users);
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+            if(!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
 
 exports.getUser = (req, res, next) => {
@@ -15,7 +20,9 @@ exports.getUser = (req, res, next) => {
     User.findById(userId)
         .then(user => {
             if (!user) {
-                return res.status(404).json({message: "No user found"});
+                const error = new Error('User not found');
+                error.statusCode = 404;
+                throw error;
             }
             return user.populate({
                 path: 'reviews'
@@ -25,19 +32,30 @@ exports.getUser = (req, res, next) => {
         .then(user => {
             res.status(200).json({user, reviews: user.reviews});
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+            if(!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
 
 exports.createUser = (req, res, next) => {
     if (!req.errors.isEmpty) {
-        return res.status(422).json({errors: req.errors.errors});
+        const error = new Error('Validation failed');
+        error.errors = req.errors.errors;
+        error.statusCode = 422;
+        throw error;
     }
     const {username, email, password} = req.body;
     const photoUrl = req.body.photoUrl || '/images/default.png';
     return User.findOne({email})
         .then((userInDB) => {
             if (userInDB) {
-                return res.status(422).json({errors: {email: "Email address already exists"}});
+                const error = new Error('Validation failed');
+                error.errors = {email: 'Email address already exists'};
+                error.statusCode = 422;
+                throw error;
             }
             return bcrypt.hash(password.trim(), 12);
         })
@@ -53,12 +71,20 @@ exports.createUser = (req, res, next) => {
         .then(user => {
             res.status(201).json(user);
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+            if(!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
 
 exports.updateUser = (req, res, next) => {
     if(!req.errors.isEmpty) {
-         return res.status(422).json({errors: req.errors.errors});
+        const error = new Error('Validation failed');
+        error.errors = req.errors.errors;
+        error.statusCode = 422;
+        throw error;
     }
     const userId = req.userId || req.params.userId;
     const { username, email, password } = req.body;
@@ -67,14 +93,19 @@ exports.updateUser = (req, res, next) => {
     User.findById(userId)
         .then(user => {
             if (!user) {
-                return res.status(404).json({message: "No user found"});
+                const error = new Error('User not found');
+                error.statusCode = 404;
+                throw error;
             }
             currentUser = user;
             return User.findOne({email});
         })
         .then(user => {
             if(user && user._id.toString() !== userId ) {
-                return res.status(422).json({errors: {email: "Email address already exists"}});
+                const error = new Error('Validation failed');
+                error.errors = {email: 'Email address already exists'};
+                error.statusCode = 422;
+                throw error;
             }
             if(!password) {
                 Object.assign(currentUser, {
@@ -98,7 +129,12 @@ exports.updateUser = (req, res, next) => {
         .then(() => {
             res.status(200).json(currentUser);
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+            if(!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
 
 exports.deleteUser = (req, res, next) => {
@@ -106,14 +142,21 @@ exports.deleteUser = (req, res, next) => {
     User.findById(userId)
         .then(user => {
             if(!user) {
-                return res.status(404).json({message: "No user found"});
+                const error = new Error('User not found');
+                error.statusCode = 404;
+                throw error;
             }
             return user.remove(userId);
         })
         .then(user => {
             res.status(200).json({ user });
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+            if(!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
 
 exports.updateUserStatus = (req, res, next) => {
@@ -122,7 +165,9 @@ exports.updateUserStatus = (req, res, next) => {
     User.findById(userId)
         .then(user => {
             if(!user) {
-                return res.status(404).json({message: "No user found"});
+                const error = new Error('User not found');
+                error.statusCode = 404;
+                throw error;
             }
             Object.assign(user, {
                 status
@@ -132,5 +177,10 @@ exports.updateUserStatus = (req, res, next) => {
         .then(user => {
             res.status(200).json(user);
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+            if(!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };

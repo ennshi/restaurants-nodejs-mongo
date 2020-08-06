@@ -5,7 +5,12 @@ exports.getRestaurants = (req, res, next) => {
         .then(restaurants => {
             res.status(200).json(restaurants);
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+            if(!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
 
 exports.getRestaurant = (req, res, next) => {
@@ -13,7 +18,9 @@ exports.getRestaurant = (req, res, next) => {
     Restaurant.findById(restaurantId)
         .then(restaurant => {
             if (!restaurant) {
-                return res.status(404).json({message: "No restaurant found"});
+                const error = new Error('Restaurant not found');
+                error.statusCode = 404;
+                throw error;
             }
             return restaurant.populate({
                 path: 'reviews'
@@ -23,12 +30,20 @@ exports.getRestaurant = (req, res, next) => {
         .then(restaurant => {
             res.status(200).json({ restaurant, reviews: restaurant.reviews});
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+            if(!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
 
 exports.createRestaurant = (req, res, next) => {
     if(!req.errors.isEmpty) {
-        return res.status(422).json({errors: req.errors.errors});
+        const error = new Error('Validation failed');
+        error.errors = req.errors.errors;
+        error.statusCode = 422;
+        throw error;
     }
     const {name, description, country, city, address, photoUrl} = req.body;
     const restaurant = new Restaurant({
@@ -45,19 +60,29 @@ exports.createRestaurant = (req, res, next) => {
         .then(restaurant => {
             res.status(201).json(restaurant);
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+            if(!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
 
 exports.updateRestaurant = (req, res, next) => {
     if(!req.errors.isEmpty) {
-        return res.status(422).json({errors: req.errors.errors});
+        const error = new Error('Validation failed');
+        error.errors = req.errors.errors;
+        error.statusCode = 422;
+        throw error;
     }
     const restaurantId = req.params.restaurantId;
     const {name, description, country, city, address, photoUrl} = req.body;
     Restaurant.findById(restaurantId)
         .then(restaurant => {
             if(!restaurant) {
-                return res.status(404).json({message: "No restaurant found"});
+                const error = new Error('Restaurant not found');
+                error.statusCode = 404;
+                throw error;
             }
             Object.assign(restaurant, {
                 name,
@@ -74,7 +99,12 @@ exports.updateRestaurant = (req, res, next) => {
         .then(restaurant => {
             res.status(200).json(restaurant);
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+            if(!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
 
 exports.deleteRestaurant = (req, res, next) => {
@@ -82,12 +112,19 @@ exports.deleteRestaurant = (req, res, next) => {
     Restaurant.findById(restaurantId)
         .then(restaurant => {
             if(!restaurant) {
-                return res.status(404).json({message: "No restaurant found"});
+                const error = new Error('Restaurant not found');
+                error.statusCode = 404;
+                throw error;
             }
             return restaurant.remove();
         })
         .then(result => {
             res.status(200).json({restaurant: result});
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+            if(!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
