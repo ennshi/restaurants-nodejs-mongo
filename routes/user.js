@@ -16,7 +16,6 @@ router.get('/profile', userAuth, userController.getUser);
 router.put('/profile', userAuth, isValidUser, userController.updateUser);
 router.delete('/profile', userAuth, userController.deleteUser);
 
-router.get('/reviews', reviewController.getReviews);
 router.post('/reviews', userAuth, isValidReview, reviewController.createReview);
 router.put('/reviews/:reviewId', userAuth, isValidReview, reviewController.updateReview);
 router.delete('/reviews/:reviewId', userAuth, reviewController.deleteReview);

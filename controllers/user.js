@@ -14,10 +14,16 @@ exports.getUser = (req, res, next) => {
     const userId = req.userId || req.params.userId;
     User.findById(userId)
         .then(user => {
-            if(!user) {
+            if (!user) {
                 return res.status(404).json({message: "No user found"});
             }
-            res.status(200).json(user);
+            return user.populate({
+                path: 'reviews'
+            })
+                .execPopulate();
+        })
+        .then(user => {
+            res.status(200).json({user, reviews: user.reviews});
         })
         .catch((err) => console.log(err));
 };
@@ -37,8 +43,8 @@ exports.createUser = (req, res, next) => {
         })
         .then(hashedPass => {
             const user = new User({
-                username: username.trim(),
-                email: email.trim(),
+                username,
+                email,
                 password: hashedPass,
                 photoUrl
             });
@@ -55,21 +61,42 @@ exports.updateUser = (req, res, next) => {
          return res.status(422).json({errors: req.errors.errors});
     }
     const userId = req.userId || req.params.userId;
-    const {username, email, password} = req.body;
+    const { username, email, password } = req.body;
+    const photoUrl = req.body.photoUrl || '/images/default.png';
+    let currentUser;
     User.findById(userId)
         .then(user => {
-            if(!user) {
+            if (!user) {
                 return res.status(404).json({message: "No user found"});
             }
-            Object.assign(user, {
-                username: username.trim(),
-                email: email.trim(),
-                password: password.trim()
-            });
-            return user.save();
+            currentUser = user;
+            return User.findOne({email});
         })
         .then(user => {
-            res.status(200).json(user);
+            if(user && user._id.toString() !== userId ) {
+                return res.status(422).json({errors: {email: "Email address already exists"}});
+            }
+            if(!password) {
+                Object.assign(currentUser, {
+                    username,
+                    email,
+                    photoUrl
+                });
+                return currentUser.save();
+            }
+            bcrypt.hash(password.trim(), 12)
+                .then(hashedPass => {
+                    Object.assign(currentUser, {
+                        username,
+                        email,
+                        password: hashedPass,
+                        photoUrl
+                    });
+                    return currentUser.save();
+                })
+        })
+        .then(() => {
+            res.status(200).json(currentUser);
         })
         .catch((err) => console.log(err));
 };
@@ -81,7 +108,7 @@ exports.deleteUser = (req, res, next) => {
             if(!user) {
                 return res.status(404).json({message: "No user found"});
             }
-            return User.findByIdAndRemove(userId);
+            return user.remove(userId);
         })
         .then(user => {
             res.status(200).json({ user });
