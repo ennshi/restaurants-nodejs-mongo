@@ -14,10 +14,16 @@ exports.getUser = (req, res, next) => {
     const userId = req.userId || req.params.userId;
     User.findById(userId)
         .then(user => {
-            if(!user) {
+            if (!user) {
                 return res.status(404).json({message: "No user found"});
             }
-            res.status(200).json(user);
+            return user.populate({
+                path: 'reviews'
+            })
+                .execPopulate();
+        })
+        .then(user => {
+            res.status(200).json({user, reviews: user.reviews});
         })
         .catch((err) => console.log(err));
 };
@@ -37,8 +43,8 @@ exports.createUser = (req, res, next) => {
         })
         .then(hashedPass => {
             const user = new User({
-                username: username.trim(),
-                email: email.trim(),
+                username,
+                email,
                 password: hashedPass,
                 photoUrl
             });
@@ -72,8 +78,8 @@ exports.updateUser = (req, res, next) => {
             }
             if(!password) {
                 Object.assign(currentUser, {
-                    username: username.trim(),
-                    email: email.trim(),
+                    username,
+                    email,
                     photoUrl
                 });
                 return currentUser.save();
@@ -81,8 +87,8 @@ exports.updateUser = (req, res, next) => {
             bcrypt.hash(password.trim(), 12)
                 .then(hashedPass => {
                     Object.assign(currentUser, {
-                        username: username.trim(),
-                        email: email.trim(),
+                        username,
+                        email,
                         password: hashedPass,
                         photoUrl
                     });
@@ -102,7 +108,7 @@ exports.deleteUser = (req, res, next) => {
             if(!user) {
                 return res.status(404).json({message: "No user found"});
             }
-            return User.findByIdAndRemove(userId);
+            return user.remove(userId);
         })
         .then(user => {
             res.status(200).json({ user });

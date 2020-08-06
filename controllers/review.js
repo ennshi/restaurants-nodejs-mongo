@@ -1,6 +1,4 @@
 const Review = require('../models/review');
-const Restaurant = require('../models/restaurant');
-const User = require('../models/user');
 
 exports.getReviews = (req, res, next) => {
     Review.find()
@@ -23,20 +21,6 @@ exports.createReview = (req, res, next) => {
         creator
     });
     review.save()
-        .then(() => {
-            return Restaurant.findById(restaurant);
-        })
-        .then(restaurant => {
-            restaurant.reviews.push(review);
-            return restaurant.save();
-        })
-        .then(() => {
-            return User.findById(creator);
-        })
-        .then(user => {
-            user.reviews.push(review);
-            return user.save();
-        })
         .then(() => {
             res.status(201).json(review);
         })
@@ -71,8 +55,6 @@ exports.updateReview = (req, res, next) => {
 
 exports.deleteReview = (req, res, next) => {
     const reviewId = req.params.reviewId;
-    const userId = req.userId;
-    let restaurantId;
     Review.findById(reviewId)
         .then(review => {
             if(!review) {
@@ -84,22 +66,7 @@ exports.deleteReview = (req, res, next) => {
             if(review.creator.toString() !== req.userId) {
                 return res.status(401).json({message: "Authorization failed"});
             }
-            restaurantId = review.restaurant;
-            return Review.findByIdAndRemove(reviewId);
-        })
-        .then(() => {
-            return User.findById(userId);
-        })
-        .then(user => {
-            user.reviews.pull(reviewId);
-            return user.save();
-        })
-        .then(() => {
-            return Restaurant.findById(restaurantId);
-        })
-        .then(restaurant => {
-            restaurant.reviews.pull(reviewId);
-            return restaurant.save();
+            return review.remove(reviewId);
         })
         .then(() => {
             res.status(200).json({reviewId});

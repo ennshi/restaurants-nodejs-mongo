@@ -12,10 +12,16 @@ exports.getRestaurant = (req, res, next) => {
     const restaurantId = req.params.restaurantId;
     Restaurant.findById(restaurantId)
         .then(restaurant => {
-            if(!restaurant) {
+            if (!restaurant) {
                 return res.status(404).json({message: "No restaurant found"});
             }
-            res.status(200).json(restaurant);
+            return restaurant.populate({
+                path: 'reviews'
+            })
+                .execPopulate();
+        })
+        .then(restaurant => {
+            res.status(200).json({ restaurant, reviews: restaurant.reviews});
         })
         .catch((err) => console.log(err));
 };
@@ -26,13 +32,13 @@ exports.createRestaurant = (req, res, next) => {
     }
     const {name, description, country, city, address, photoUrl} = req.body;
     const restaurant = new Restaurant({
-        name: name.trim(),
-        description: description.trim(),
+        name,
+        description,
         photoUrl,
         location: {
             country,
             city,
-            address: address.trim()
+            address
         }
     });
     restaurant.save()
@@ -54,13 +60,13 @@ exports.updateRestaurant = (req, res, next) => {
                 return res.status(404).json({message: "No restaurant found"});
             }
             Object.assign(restaurant, {
-                name: name.trim(),
-                description: description.trim(),
+                name,
+                description,
                 photoUrl,
                 location: {
                     country,
                     city,
-                    address: address.trim()
+                    address
                 }
             });
             return restaurant.save();
@@ -78,7 +84,7 @@ exports.deleteRestaurant = (req, res, next) => {
             if(!restaurant) {
                 return res.status(404).json({message: "No restaurant found"});
             }
-            return Restaurant.findByIdAndRemove(restaurantId);
+            return restaurant.remove();
         })
         .then(result => {
             res.status(200).json({restaurant: result});
