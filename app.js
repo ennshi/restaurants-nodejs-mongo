@@ -5,15 +5,12 @@ const mongoose = require('mongoose');
 const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/user');
 const authRoutes = require('./routes/auth');
+const errorHandler = require('./middlewares/error-handler');
 
 const app = express();
 const port = process.env.PORT;
 
 app.use(bodyParser.json());
-
-app.use('/auth', authRoutes);
-app.use('/admin', adminRoutes);
-app.use('/', userRoutes);
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -21,6 +18,12 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     next();
 });
+
+app.use('/auth', authRoutes);
+app.use('/admin', adminRoutes);
+app.use('/', userRoutes);
+
+app.use(errorHandler);
 
 mongoose.connect(process.env.MONGODB_URL,
     { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
