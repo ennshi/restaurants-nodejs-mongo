@@ -1,6 +1,9 @@
 const bcrypt = require('bcryptjs');
+const path = require('path');
+const fs = require('fs');
 
 const User = require('../models/user');
+const DEFAULT_AVATAR = '/public/img/avatars/default.png';
 
 exports.getUsers = (req, res, next) => {
     User.find()
@@ -48,7 +51,7 @@ exports.createUser = (req, res, next) => {
         throw error;
     }
     const {username, email, password} = req.body;
-    const photoUrl = req.body.photoUrl || '/images/default.png';
+    const photoUrl = DEFAULT_AVATAR;
     return User.findOne({email})
         .then((userInDB) => {
             if (userInDB) {
@@ -88,7 +91,6 @@ exports.updateUser = (req, res, next) => {
     }
     const userId = req.userId || req.params.userId;
     const { username, email, password } = req.body;
-    const photoUrl = req.body.photoUrl || '/images/default.png';
     let currentUser;
     User.findById(userId)
         .then(user => {
@@ -110,8 +112,7 @@ exports.updateUser = (req, res, next) => {
             if(!password) {
                 Object.assign(currentUser, {
                     username,
-                    email,
-                    photoUrl
+                    email
                 });
                 return currentUser.save();
             }
@@ -120,8 +121,7 @@ exports.updateUser = (req, res, next) => {
                     Object.assign(currentUser, {
                         username,
                         email,
-                        password: hashedPass,
-                        photoUrl
+                        password: hashedPass
                     });
                     return currentUser.save();
                 })
@@ -149,7 +149,10 @@ exports.deleteUser = (req, res, next) => {
             return user.remove(userId);
         })
         .then(user => {
-            res.status(200).json({ user });
+            if(user.photoUrl !== DEFAULT_AVATAR) {
+                clearImage(user.photoUrl);
+            }
+            res.status(200).json(user);
         })
         .catch((err) => {
             if(!err.statusCode) {
@@ -187,6 +190,7 @@ exports.updateUserStatus = (req, res, next) => {
 
 exports.setAvatar = (req, res, next) => {
     const photoUrl = req.file.path.replace( /\\/g, '/');
+    let pastPhotoUrl;
     User.findById(req.userId)
         .then(user => {
             if(!user) {
@@ -194,12 +198,16 @@ exports.setAvatar = (req, res, next) => {
                 error.statusCode = 404;
                 throw error;
             }
+            pastPhotoUrl = user.photoUrl;
             Object.assign(user, {
                 photoUrl
             });
             return user.save();
         })
         .then(user => {
+            if(pastPhotoUrl !== DEFAULT_AVATAR) {
+                clearImage(pastPhotoUrl);
+            }
             res.status(200).json(user);
         })
         .catch((err) => {
@@ -208,4 +216,11 @@ exports.setAvatar = (req, res, next) => {
             }
             next(err);
         });
+};
+
+const clearImage = filePath => {
+    filePath = path.join(__dirname, '..', filePath);
+    fs.unlink(filePath, err => {
+        console.log(err);
+    });
 };
