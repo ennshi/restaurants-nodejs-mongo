@@ -184,3 +184,28 @@ exports.updateUserStatus = (req, res, next) => {
             next(err);
         });
 };
+
+exports.setAvatar = (req, res, next) => {
+    const photoUrl = req.file.path.replace( /\\/g, '/');
+    User.findById(req.userId)
+        .then(user => {
+            if(!user) {
+                const error = new Error('User not found');
+                error.statusCode = 404;
+                throw error;
+            }
+            Object.assign(user, {
+                photoUrl
+            });
+            return user.save();
+        })
+        .then(user => {
+            res.status(200).json(user);
+        })
+        .catch((err) => {
+            if(!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
+};
