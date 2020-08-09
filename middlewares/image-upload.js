@@ -44,3 +44,19 @@ exports.uploadAvatar = (req, res, next) => {
         });
 };
 
+exports.uploadRestaurantPhoto = (req, res, next) => {
+    multer({
+        limits: {
+            fileSize: 2000000
+        },
+        storage: storage('restaurants'),
+        fileFilter
+    })
+        .single('image')(req, res, (err) => {
+            if (err) {
+                err.statusCode = 422;
+                return errorHandler(err, req, res);
+            }
+            next();
+        });
+};
