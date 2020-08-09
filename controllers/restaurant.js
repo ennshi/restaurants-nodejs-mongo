@@ -49,7 +49,7 @@ exports.createRestaurant = (req, res, next) => {
         error.statusCode = 422;
         throw error;
     }
-    const {name, description, country, city, address} = req.body;
+    const {name, description, country, state, city, address} = req.body;
     const photoUrl = req.file ? req.file.path.replace( /\\/g, '/') : DEFAULT_PHOTO;
         const restaurant = new Restaurant({
         name,
@@ -57,6 +57,7 @@ exports.createRestaurant = (req, res, next) => {
         photoUrl,
         location: {
             country,
+            state,
             city,
             address
         }
@@ -81,7 +82,7 @@ exports.updateRestaurant = (req, res, next) => {
         throw error;
     }
     const restaurantId = req.params.restaurantId;
-    const {name, description, country, city, address} = req.body;
+    const {name, description, country, state, city, address} = req.body;
     Restaurant.findById(restaurantId)
         .then(restaurant => {
             if(!restaurant) {
@@ -94,6 +95,7 @@ exports.updateRestaurant = (req, res, next) => {
                 description,
                 location: {
                     country,
+                    state,
                     city,
                     address
                 }
