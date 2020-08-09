@@ -1,3 +1,5 @@
+const ccsj = require('countrycitystatejson');
+
 exports.isLength = (trimmedText, {min = null, max = null}) => {
     const trimmedTextLength = trimmedText.length;
     let isValid = min ? (trimmedTextLength > min) : true;
@@ -17,4 +19,17 @@ exports.isValidPassword = (trimmedPassword) => {
 
 exports.isValidRating = (number, maxNumber) => {
     return (number >= 0) && (number <= maxNumber);
+};
+
+exports.isValidCountryStateCity = ({country, state, city}) => {
+    const regExp = new RegExp(country, 'gi');
+    const countryFromDB = ccsj.getCountries().find(c => c.name.match(regExp));
+    if(!countryFromDB) {
+        return false;
+    }
+    const countryObj = ccsj.getCountryByShort(countryFromDB.shortName);
+    if(!countryObj.states.hasOwnProperty(state)) {
+        return false;
+    }
+    return countryObj.states[state].find(c => c.name === city);
 };
