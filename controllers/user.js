@@ -3,12 +3,37 @@ const path = require('path');
 const fs = require('fs');
 
 const User = require('../models/user');
+const { sortParse, filterParse } = require('./helpers');
 const DEFAULT_AVATAR = '/public/img/avatars/default.png';
 
 exports.getUsers = (req, res, next) => {
-    User.find()
+    const curPage = +req.query.page || 1;
+    const perPage = +req.query.limits || 10;
+    let filter = {};
+    let sort = {name: 1};
+    if(req.query.filter) {
+        filter = filterParse(req.query.filter);
+    }
+    if(req.query.sort) {
+        sort = sortParse(req.query.sort);
+    }
+    let totalNumber;
+    User.find({...filter})
+        .countDocuments()
+        .then(count => {
+            totalNumber = count;
+            return User.find({...filter}, {}, {
+                limit: perPage,
+                skip: ((curPage - 1) * perPage),
+                sort
+            })
+                .populate({
+                    path: 'reviews'
+                });
+        })
         .then(users => {
-            res.status(200).json(users);
+            users = users.map(user => ({user, numReviews: user.reviews.length}));
+            res.status(200).json({users, totalNumber});
         })
         .catch((err) => {
             if(!err.statusCode) {
