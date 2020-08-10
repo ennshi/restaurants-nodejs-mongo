@@ -1,16 +1,37 @@
 const Review = require('../models/review');
+const {sortParse, filterParse} = require('./helpers');
 
 exports.getReviews = (req, res, next) => {
-    Review.find()
-        .then(reviews => {
-            res.status(200).json(reviews);
+    const curPage = +req.query.page || 1;
+    const perPage = +req.query.limits || 10;
+    let filter = {};
+    let sort = {createdAt: -1};
+    if(req.query.filter) {
+        filter = filterParse(req.query.filter);
+    }
+    if(req.query.sort) {
+        sort = sortParse(req.query.sort);
+    }
+    let totalNumber;
+    Review.find({...filter})
+        .countDocuments()
+        .then(count => {
+            totalNumber = count;
+            return Review.find({...filter}, {}, {
+                limit: perPage,
+                skip: ((curPage - 1) * perPage),
+                sort
+            });
         })
-        .catch((err) => {
-            if(!err.statusCode) {
-                err.statusCode = 500;
-            }
-            next(err);
-        });
+            .then(reviews => {
+                res.status(200).json({reviews, totalNumber});
+            })
+            .catch((err) => {
+                if(!err.statusCode) {
+                    err.statusCode = 500;
+                }
+                next(err);
+            });
 };
 
 exports.createReview = (req, res, next) => {
