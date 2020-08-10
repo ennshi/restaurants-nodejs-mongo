@@ -2,11 +2,29 @@ const path = require('path');
 const fs = require('fs');
 
 const Restaurant = require('../models/restaurant');
+const {sortParse} = require('./helpers');
 const DEFAULT_PHOTO = '/public/img/restaurants/default.png';
 
 exports.getRestaurants = (req, res, next) => {
-    Restaurant.find()
-        .then(restaurants => {
+    const curPage = +req.query.page || 1;
+    const perPage = +req.query.limits || 10;
+    let filter = {};
+    let sort = {name: 1};
+    if(req.query.filter) {
+        filter = filterParse(req.query.filter);
+    }
+    if(req.query.sort) {
+        sort = sortParse(req.query.sort);
+    }
+    let totalNumber;
+    Restaurant.find({...filter})
+        .countDocuments()
+        .then(count => {
+            totalNumber = count;
+            return Restaurant
+                .aggregate(pipelineGetRestaurants({filter, sort, curPage, perPage}));
+        })
+        .then((restaurants) => {
             res.status(200).json(restaurants);
         })
         .catch((err) => {
@@ -32,7 +50,11 @@ exports.getRestaurant = (req, res, next) => {
                 .execPopulate();
         })
         .then(restaurant => {
-            res.status(200).json({ restaurant, reviews: restaurant.reviews});
+            res.status(200).json({
+                restaurant,
+                reviews: restaurant.reviews,
+                reviewsStat: resultReviews(restaurant.reviews)
+            });
         })
         .catch((err) => {
             if(!err.statusCode) {
@@ -149,4 +171,65 @@ const clearImage = filePath => {
     fs.unlink(filePath, err => {
         console.log(err);
     });
+};
+
+const resultReviews = (reviews) => {
+    const numReviews = reviews.length;
+    let rating = 0;
+    if(numReviews) {
+        rating = (reviews.reduce((acc, review) => (acc + review.rating), 0) / numReviews).toFixed(1);
+    }
+    return {
+        rating,
+        numReviews
+    }
+};
+
+const filterParse = (filterTerm) => {
+    let filter = {};
+    if(filterTerm.match(/::/)) {
+        const filterParsed = filterTerm.split('::');
+        filter[filterParsed[0]] = filterParsed[1];
+    } else {
+        filter = { $or: [{name: filterTerm}, {'location.country': filterTerm}, {'location.city': filterTerm}]};
+    }
+    return filter;
+};
+
+const pipelineGetRestaurants = ({filter, sort, curPage, perPage}) => {
+    return [
+        { $match: {...filter} },
+        { $sort: sort },
+        { $skip: ((curPage - 1) * perPage) },
+        { $limit: perPage },
+        { $lookup: {
+                from: 'reviews',
+                localField: '_id',
+                foreignField: 'restaurant',
+                as: 'reviews'
+            }},
+        { $unwind: {
+                path: "$reviews",
+                preserveNullAndEmptyArrays: true
+            }},
+        { $group: {
+                _id: "$_id",
+                name: {$first: '$name'},
+                description: {$first: '$description'},
+                photoUrl: {$first: '$photoUrl'},
+                location: {$first: '$location'},
+                createdAt: {$first: '$createdAt'},
+                reviews: {$push: "$reviews"},
+                avgRating: {$avg: "$reviews.rating"}
+            }},
+        { $project: {
+                name: 1,
+                description: 1,
+                location: 1,
+                createdAt: 1,
+                photoUrl: 1,
+                reviews: 1,
+                avgRating: 1
+            }},
+    ];
 };
