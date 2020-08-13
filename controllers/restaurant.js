@@ -1,8 +1,5 @@
-const path = require('path');
-const fs = require('fs');
-
 const Restaurant = require('../models/restaurant');
-const {sortParse} = require('./helpers');
+const {sortParse, clearImage} = require('./helpers');
 const DEFAULT_PHOTO = '/public/img/restaurants/default.png';
 
 exports.getRestaurants = (req, res, next) => {
@@ -154,13 +151,6 @@ exports.deleteRestaurant = (req, res, next) => {
             }
             next(err);
         });
-};
-
-const clearImage = filePath => {
-    filePath = path.join(__dirname, '..', filePath);
-    fs.unlink(filePath, err => {
-        console.log(err);
-    });
 };
 
 const resultReviews = (reviews) => {

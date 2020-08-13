@@ -1,3 +1,6 @@
+const path = require('path');
+const fs = require('fs');
+
 exports.sortParse = (sortTerm) => {
     let sort = {};
     const sortParsed = sortTerm.split('::');
@@ -10,4 +13,11 @@ exports.filterParse = (filterTerm) => {
     const filterParsed = filterTerm.split('::');
     filter[filterParsed[0]] = filterParsed[1];
     return filter;
+};
+
+exports.clearImage = filePath => {
+    filePath = path.join(__dirname, '..', filePath);
+    fs.unlink(filePath, err => {
+        console.log(err);
+    });
 };

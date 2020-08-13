@@ -1,9 +1,7 @@
 const bcrypt = require('bcryptjs');
-const path = require('path');
-const fs = require('fs');
 
 const User = require('../models/user');
-const { sortParse, filterParse } = require('./helpers');
+const { sortParse, filterParse, clearImage } = require('./helpers');
 const DEFAULT_AVATAR = '/public/img/avatars/default.png';
 
 exports.getUsers = (req, res, next) => {
@@ -241,11 +239,4 @@ exports.setAvatar = (req, res, next) => {
             }
             next(err);
         });
-};
-
-const clearImage = filePath => {
-    filePath = path.join(__dirname, '..', filePath);
-    fs.unlink(filePath, err => {
-        console.log(err);
-    });
 };
