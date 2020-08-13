@@ -26,7 +26,7 @@ app.use('/', userRoutes);
 app.use(errorHandler);
 
 mongoose.connect(process.env.MONGODB_URL,
-    { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
+    { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
     .then(() => {
         app.listen(port, () => console.log('Server is up'));
     })
