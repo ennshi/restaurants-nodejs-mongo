@@ -71,18 +71,13 @@ exports.createRestaurant = (req, res, next) => {
         error.statusCode = 422;
         throw error;
     }
-    const {name, description, country, state, city, address} = req.body;
+    const {name, description, address} = req.body;
     const photoUrl = req.file ? req.file.path.replace( /\\/g, '/') : DEFAULT_PHOTO;
         const restaurant = new Restaurant({
         name,
         description,
         photoUrl,
-        location: {
-            country,
-            state,
-            city,
-            address
-        }
+        address
     });
     restaurant.save()
         .then(restaurant => {
@@ -104,7 +99,7 @@ exports.updateRestaurant = (req, res, next) => {
         throw error;
     }
     const restaurantId = req.params.restaurantId;
-    const {name, description, country, state, city, address} = req.body;
+    const {name, description, address} = req.body;
     Restaurant.findById(restaurantId)
         .then(restaurant => {
             if(!restaurant) {
@@ -115,12 +110,7 @@ exports.updateRestaurant = (req, res, next) => {
             Object.assign(restaurant, {
                 name,
                 description,
-                location: {
-                    country,
-                    state,
-                    city,
-                    address
-                }
+                address
             });
             if(req.file) {
                 if(restaurant.photoUrl !== DEFAULT_PHOTO) {
@@ -191,7 +181,8 @@ const filterParse = (filterTerm) => {
         const filterParsed = filterTerm.split('::');
         filter[filterParsed[0]] = filterParsed[1];
     } else {
-        filter = { $or: [{name: filterTerm}, {'location.country': filterTerm}, {'location.city': filterTerm}]};
+        const searchObj = {$regex : filterTerm, $options: 'i'};
+        filter = { $or: [{name: {...searchObj}}, {'location.country': {...searchObj}}, {'location.formattedAddress': {...searchObj}}]};
     }
     return filter;
 };

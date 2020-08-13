@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/user');
 const authRoutes = require('./routes/auth');
-const locationRoutes = require('./routes/location');
 const errorHandler = require('./middlewares/error-handler');
 
 const app = express();
@@ -22,7 +21,6 @@ app.use((req, res, next) => {
 
 app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
-app.use('/location', locationRoutes);
 app.use('/', userRoutes);
 
 app.use(errorHandler);
