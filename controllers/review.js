@@ -21,7 +21,9 @@ exports.getReviews = (req, res, next) => {
                 limit: perPage,
                 skip: ((curPage - 1) * perPage),
                 sort
-            });
+            })
+                .populate('creator')
+                .populate('restaurant');
         })
             .then(reviews => {
                 res.status(200).json({reviews, totalNumber});
