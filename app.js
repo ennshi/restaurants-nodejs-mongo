@@ -10,6 +10,7 @@ const errorHandler = require('./middlewares/error-handler');
 const app = express();
 const port = process.env.PORT;
 
+app.use(express.static('public/img'));
 app.use(bodyParser.json());
 
 app.use((req, res, next) => {
