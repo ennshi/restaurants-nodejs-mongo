@@ -3,11 +3,11 @@ const jwt = require('jsonwebtoken');
 exports.userAuth = (req, res, next) => {
     const authHeader = req.get('Authorization');
     if(!authHeader) {
-        return res.status(401).json({message: 'Authorization failed'});
+        return res.status(401).json({message: 'Authorization failed', errors: {auth: 'Authorization failed'}});
     }
     const decodedToken = decodeToken(authHeader, process.env.JWT_KEY);
     if(!decodedToken) {
-        return res.status(401).json({message: 'Authorization failed'});
+        return res.status(401).json({message: 'Authorization failed', errors: {auth: 'Authorization failed'}});
     }
     req.userId = decodedToken.userId;
     next();
@@ -16,11 +16,11 @@ exports.userAuth = (req, res, next) => {
 exports.adminAuth = (req, res, next) => {
     const authHeader = req.get('Authorization');
     if(!authHeader) {
-        return res.status(401).json({message: 'Authorization failed'});
+        return res.status(401).json({message: 'Authorization failed', errors: {auth: 'Authorization failed'}});
     }
     const decodedToken = decodeToken(authHeader, process.env.JWT_KEY_A);
     if(!decodedToken) {
-        return res.status(401).json({message: 'Authorization failed'});
+        return res.status(401).json({message: 'Authorization failed', errors: {auth: 'Authorization failed'}});
     }
     req.adminId = decodedToken.adminId;
     next();
