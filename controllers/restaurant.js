@@ -171,8 +171,14 @@ const filterParse = (filterTerm) => {
         const filterParsed = filterTerm.split('::');
         filter[filterParsed[0]] = filterParsed[1];
     } else {
-        const searchObj = {$regex : filterTerm, $options: 'i'};
-        filter = { $or: [{name: {...searchObj}}, {'location.country': {...searchObj}}, {'location.formattedAddress': {...searchObj}}]};
+        let regexpFilter = filterTerm;
+        if(filterTerm.match(/\W/)) {
+            filterTerm.split(/\W/).forEach(word => {
+                regexpFilter += `|(?=.*${word})`
+            });
+        }
+        const searchObj = {$regex : regexpFilter, $options: 'i'};
+        filter = { searchField: {...searchObj} };
     }
     return filter;
 };
