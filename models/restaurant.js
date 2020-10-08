@@ -29,10 +29,12 @@ const restaurantSchema = new Schema({
             type: [Number],
             index: '2dsphere'
         },
-        formattedAddress: String,
-        country: String
+        formattedAddress: String
     },
     photoUrl: {
+        type: String
+    },
+    searchField: {
         type: String
     }
 }, { timestamps: true });
@@ -54,6 +56,7 @@ restaurantSchema.pre('save', function (next) {
                 formattedAddress: address,
             };
             this.address = undefined;
+            this.searchField = `${this.name}, ${address}`;
             next();
         });
 });
