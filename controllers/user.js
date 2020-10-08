@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 
 const User = require('../models/user');
 const { sortParse, filterParse, clearImage } = require('./helpers');
-const DEFAULT_AVATAR = '/public/img/avatars/default.png';
+const DEFAULT_AVATAR = 'public/img/avatars/default.png';
 
 exports.getUsers = (req, res, next) => {
     const curPage = +req.query.page || 1;

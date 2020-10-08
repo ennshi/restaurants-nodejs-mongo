@@ -1,6 +1,6 @@
 const Restaurant = require('../models/restaurant');
 const {sortParse, clearImage} = require('./helpers');
-const DEFAULT_PHOTO = '/public/img/restaurants/default.png';
+const DEFAULT_PHOTO = 'public/img/restaurants/default.png';
 
 exports.getRestaurants = (req, res, next) => {
     const curPage = +req.query.page || 1;
