@@ -46,11 +46,12 @@ restaurantSchema.virtual('reviews', {
 restaurantSchema.pre('save', function (next) {
     geocoder.geocode(this.address)
         .then(loc => {
+            let address = loc[0].formattedAddress.split(',');
+            address = `${address.slice(0, (address.length - 1)).join(',')}, ${countrycodelookup.byIso(loc[0].countryCode).country}`;
             this.location = {
                 type: 'Point',
                 coordinates: [loc[0].longitude, loc[0].latitude],
-                formattedAddress: loc[0].formattedAddress,
-                country: countrycodelookup.byIso(loc[0].countryCode).country
+                formattedAddress: address,
             };
             this.address = undefined;
             next();
