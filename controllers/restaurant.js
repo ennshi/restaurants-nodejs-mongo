@@ -96,7 +96,7 @@ exports.updateRestaurant = (req, res, next) => {
         throw error;
     }
     const restaurantId = req.params.restaurantId;
-    const {name, description, address} = req.body;
+    const {name, description, address, featured} = req.body;
     Restaurant.findById(restaurantId)
         .then(restaurant => {
             if(!restaurant) {
@@ -107,7 +107,8 @@ exports.updateRestaurant = (req, res, next) => {
             Object.assign(restaurant, {
                 name,
                 description,
-                address
+                address,
+                featured
             });
             if(req.file) {
                 if(restaurant.photoUrl !== DEFAULT_PHOTO) {
@@ -169,17 +170,21 @@ const filterParse = (filterTerm) => {
     let filter = {};
     if(filterTerm.match(/::/)) {
         const filterParsed = filterTerm.split('::');
-        filter[filterParsed[0]] = filterParsed[1];
-    } else {
-        let regexpFilter = filterTerm;
-        if(filterTerm.match(/\W/)) {
-            filterTerm.split(/\W/).forEach(word => {
-                regexpFilter += `|(?=.*${word})`
-            });
+        if(filterParsed[0] === 'featured') {
+            filter[filterParsed[0]] = (filterParsed[1] == 'true');
+        } else {
+            filter[filterParsed[0]] = filterParsed[1];
         }
-        const searchObj = {$regex : regexpFilter, $options: 'i'};
-        filter = { searchField: {...searchObj} };
+        return filter;
     }
+    let regexpFilter = filterTerm;
+    if(filterTerm.match(/\W/)) {
+        filterTerm.split(/\W/).forEach(word => {
+            regexpFilter += `|(?=.*${word})`
+        });
+    }
+    const searchObj = {$regex : regexpFilter, $options: 'i'};
+    filter = { searchField: {...searchObj} };
     return filter;
 };
 
