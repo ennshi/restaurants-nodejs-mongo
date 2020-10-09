@@ -36,6 +36,10 @@ const restaurantSchema = new Schema({
     },
     searchField: {
         type: String
+    },
+    featured: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true });
 
