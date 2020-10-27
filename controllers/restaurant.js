@@ -68,12 +68,13 @@ exports.createRestaurant = (req, res, next) => {
         error.statusCode = 422;
         throw error;
     }
-    const {name, description, address} = req.body;
+    const {name, description, address, featured} = req.body;
     const photoUrl = req.file ? req.file.path.replace( /\\/g, '/') : DEFAULT_PHOTO;
         const restaurant = new Restaurant({
         name,
         description,
         photoUrl,
+        featured,
         address
     });
     restaurant.save()
