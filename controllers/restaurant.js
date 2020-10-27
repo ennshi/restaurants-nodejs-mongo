@@ -4,7 +4,7 @@ const DEFAULT_PHOTO = 'public/img/restaurants/default.png';
 
 exports.getRestaurants = (req, res, next) => {
     const curPage = +req.query.page || 1;
-    const perPage = +req.query.limits || 10;
+    const perPage = +req.query.limits || 6;
     let filter = {};
     let sort = {name: 1};
     if(req.query.filter) {
@@ -22,7 +22,7 @@ exports.getRestaurants = (req, res, next) => {
                 .aggregate(pipelineGetRestaurants({filter, sort, curPage, perPage}));
         })
         .then((restaurants) => {
-            res.status(200).json(restaurants);
+            res.status(200).json({restaurants, totalNumber});
         })
         .catch((err) => {
             if(!err.statusCode) {
@@ -177,11 +177,13 @@ const filterParse = (filterTerm) => {
         }
         return filter;
     }
-    let regexpFilter = filterTerm;
+    let regexpFilter = '';
     if(filterTerm.match(/\W/)) {
         filterTerm.split(/\W/).forEach(word => {
-            regexpFilter += `|(?=.*${word})`
+            regexpFilter += `(?=.*${word})`
         });
+    } else {
+        regexpFilter = filterTerm;
     }
     const searchObj = {$regex : regexpFilter, $options: 'i'};
     filter = { searchField: {...searchObj} };
