@@ -3,7 +3,7 @@ const {sortParse, filterParse} = require('./helpers');
 
 exports.getReviews = (req, res, next) => {
     const curPage = +req.query.page || 1;
-    const perPage = +req.query.limits || 10;
+    const perPage = +req.query.limits || 8;
     let filter = {};
     let sort = {createdAt: -1};
     if(req.query.filter) {
@@ -53,7 +53,11 @@ exports.createReview = (req, res, next) => {
     });
     review.save()
         .then(() => {
-            res.status(201).json(review);
+            Review.findById(review._id)
+                .populate('creator')
+                .then(fetchedReview => {
+                    res.status(201).json(fetchedReview);
+                })
         })
         .catch((err) => {
             if(!err.statusCode) {
