@@ -6,8 +6,8 @@ const isValidReview = (req, res, next) => {
     if(!isLength(text.trim(), {min: 10, max: 300})){
         errors.text = "Please provide a description 10-300 characters long";
     }
-    if(!isValidRating(rating, 5)) {
-        errors.rating = "Rating must be between 0 and 5";
+    if(!isValidRating({number: rating, min: 1, max: 5})) {
+        errors.rating = "Rating must be between 1 and 5";
     }
     const isEmpty = !Object.keys(errors).length;
     req.errors = {errors, isEmpty};

@@ -15,7 +15,7 @@ exports.isValidPassword = (trimmedPassword) => {
     return regexp.test(trimmedPassword);
 };
 
-exports.isValidRating = (number, maxNumber) => {
-    return (number >= 0) && (number <= maxNumber);
+exports.isValidRating = ({number, min, max}) => {
+    return (number >= min) && (number <= max);
 };
 
