@@ -194,9 +194,6 @@ const filterParse = (filterTerm) => {
 const pipelineGetRestaurants = ({filter, sort, curPage, perPage}) => {
     return [
         { $match: {...filter} },
-        { $sort: sort },
-        { $skip: ((curPage - 1) * perPage) },
-        { $limit: perPage },
         { $lookup: {
                 from: 'reviews',
                 localField: '_id',
@@ -226,5 +223,8 @@ const pipelineGetRestaurants = ({filter, sort, curPage, perPage}) => {
                 reviews: 1,
                 avgRating: 1
             }},
+        { $sort: {...sort} },
+        { $skip: ((curPage - 1) * perPage) },
+        { $limit: perPage },
     ];
 };
