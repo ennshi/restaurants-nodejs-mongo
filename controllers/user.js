@@ -34,9 +34,6 @@ exports.getUsers = (req, res, next) => {
             res.status(200).json({users, totalNumber});
         })
         .catch((err) => {
-            if(!err.statusCode) {
-                err.statusCode = 500;
-            }
             next(err);
         });
 };
@@ -59,9 +56,6 @@ exports.getUser = (req, res, next) => {
             res.status(200).json({user, reviews: user.reviews});
         })
         .catch((err) => {
-            if(!err.statusCode) {
-                err.statusCode = 500;
-            }
             next(err);
         });
 };
@@ -98,9 +92,6 @@ exports.createUser = (req, res, next) => {
             res.status(201).json(user);
         })
         .catch((err) => {
-            if(!err.statusCode) {
-                err.statusCode = 500;
-            }
             next(err);
         });
 };
@@ -153,9 +144,6 @@ exports.updateUser = (req, res, next) => {
             res.status(200).json(currentUser);
         })
         .catch((err) => {
-            if(!err.statusCode) {
-                err.statusCode = 500;
-            }
             next(err);
         });
 };
@@ -178,9 +166,6 @@ exports.deleteUser = (req, res, next) => {
             res.status(200).json(user);
         })
         .catch((err) => {
-            if(!err.statusCode) {
-                err.statusCode = 500;
-            }
             next(err);
         });
 };
@@ -204,9 +189,6 @@ exports.updateUserStatus = (req, res, next) => {
             res.status(200).json(user);
         })
         .catch((err) => {
-            if(!err.statusCode) {
-                err.statusCode = 500;
-            }
             next(err);
         });
 };
@@ -234,9 +216,6 @@ exports.setAvatar = (req, res, next) => {
             res.status(200).json(user);
         })
         .catch((err) => {
-            if(!err.statusCode) {
-                err.statusCode = 500;
-            }
             next(err);
         });
 };

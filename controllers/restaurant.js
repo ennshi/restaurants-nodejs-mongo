@@ -25,9 +25,6 @@ exports.getRestaurants = (req, res, next) => {
             res.status(200).json({restaurants, totalNumber});
         })
         .catch((err) => {
-            if(!err.statusCode) {
-                err.statusCode = 500;
-            }
             next(err);
         });
 };
@@ -54,9 +51,6 @@ exports.getRestaurant = (req, res, next) => {
             });
         })
         .catch((err) => {
-            if(!err.statusCode) {
-                err.statusCode = 500;
-            }
             next(err);
         });
 };
@@ -82,9 +76,6 @@ exports.createRestaurant = (req, res, next) => {
             res.status(201).json(restaurant);
         })
         .catch((err) => {
-            if(!err.statusCode) {
-                err.statusCode = 500;
-            }
             next(err);
         });
 };
@@ -123,9 +114,6 @@ exports.updateRestaurant = (req, res, next) => {
             res.status(200).json(restaurant);
         })
         .catch((err) => {
-            if(!err.statusCode) {
-                err.statusCode = 500;
-            }
             next(err);
         });
 };
@@ -148,9 +136,6 @@ exports.deleteRestaurant = (req, res, next) => {
             res.status(200).json({restaurant: result});
         })
         .catch((err) => {
-            if(!err.statusCode) {
-                err.statusCode = 500;
-            }
             next(err);
         });
 };

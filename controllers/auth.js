@@ -10,14 +10,18 @@ exports.loginUser = (req, res, next) => {
     User.findOne({ email })
         .then(user => {
             if(!user) {
-                return res.status(404).json({message: "Email isn't registered or password is incorrect"});
+                return res.status(404).json({errors: {
+                        auth: "Email isn't registered or password is incorrect"
+                    }});
             }
             currentUser = user;
             return bcrypt.compare(password, user.password);
         })
         .then(isEqual => {
             if(!isEqual) {
-                return res.status(404).json({message: "Email isn't registered or password is incorrect"});
+                return res.status(404).json({errors: {
+                    auth: "Email isn't registered or password is incorrect"
+                }});
             }
             const key = process.env.JWT_KEY;
             const token = jwt.sign({
@@ -40,14 +44,18 @@ exports.loginAdmin = (req, res, next) => {
     Admin.findOne({ identifier })
         .then(admin => {
             if(!admin) {
-                return res.status(404).json({message: "Identifier isn't registered or password is incorrect"});
+                return res.status(404).json({errors: {
+                    auth: "Identifier isn't registered or password is incorrect"
+                }});
             }
             loggedAdmin = admin;
             return bcrypt.compare(password, admin.password);
         })
         .then(isEqual => {
             if(!isEqual) {
-                return res.status(404).json({message: "Identifier isn't registered or password is incorrect"});
+                return res.status(404).json({errors: {
+                    auth: "Identifier isn't registered or password is incorrect"
+                }});
             }
             const key = process.env.JWT_KEY_A;
             const token = jwt.sign({

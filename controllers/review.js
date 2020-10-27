@@ -29,9 +29,6 @@ exports.getReviews = (req, res, next) => {
                 res.status(200).json({reviews, totalNumber});
             })
             .catch((err) => {
-                if(!err.statusCode) {
-                    err.statusCode = 500;
-                }
                 next(err);
             });
 };
@@ -60,9 +57,6 @@ exports.createReview = (req, res, next) => {
                 })
         })
         .catch((err) => {
-            if(!err.statusCode) {
-                err.statusCode = 500;
-            }
             next(err);
         });
 };
@@ -98,9 +92,6 @@ exports.updateReview = (req, res, next) => {
             res.status(200).json(review);
         })
         .catch((err) => {
-            if(!err.statusCode) {
-                err.statusCode = 500;
-            }
             next(err);
         });
 };
@@ -125,9 +116,6 @@ exports.deleteReview = (req, res, next) => {
             res.status(200).json({reviewId});
         })
         .catch((err) => {
-            if(!err.statusCode) {
-                err.statusCode = 500;
-            }
             next(err);
         });
 };
