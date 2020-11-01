@@ -1,6 +1,7 @@
 const multer = require('multer');
 const {v4: uuidv4} = require('uuid');
 const path = require('path');
+const sharp = require('sharp');
 
 const errorHandler = require('./error-handler');
 
@@ -47,7 +48,7 @@ exports.uploadAvatar = (req, res, next) => {
 exports.uploadRestaurantPhoto = (req, res, next) => {
     multer({
         limits: {
-            fileSize: 2000000
+            fileSize: 5000000
         },
         storage: storage('restaurants'),
         fileFilter
@@ -59,4 +60,14 @@ exports.uploadRestaurantPhoto = (req, res, next) => {
             }
             next();
         });
+};
+
+exports.minifyAndResize = async (img, size) => {
+    const newPath = path.resolve(path.dirname(img.path), `${img.filename.split('.')[0]}-optimized.jpeg`);
+    await sharp(img.path)
+        .jpeg({
+            quality: 80
+        })
+        .resize(size, size)
+        .toFile(newPath);
 };
