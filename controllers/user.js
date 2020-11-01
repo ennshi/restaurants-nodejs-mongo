@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 
 const User = require('../models/user');
 const { sortParse, filterParse, clearImage } = require('./helpers');
+const {minifyAndResize} = require('../middlewares/image-upload');
 const DEFAULT_AVATAR = 'public/img/avatars/default.png';
 
 exports.getUsers = (req, res, next) => {
@@ -194,7 +195,7 @@ exports.updateUserStatus = (req, res, next) => {
 };
 
 exports.setAvatar = (req, res, next) => {
-    const photoUrl = req.file.path.replace( /\\/g, '/');
+    const photoUrl = `${req.file.path.replace( /\\/g, '/').split('.')[0]}-optimized.jpeg`;
     let pastPhotoUrl;
     User.findById(req.userId)
         .then(user => {
@@ -207,6 +208,12 @@ exports.setAvatar = (req, res, next) => {
             Object.assign(user, {
                 photoUrl
             });
+            minifyAndResize(req.file, 160)
+                .catch(() => {
+                    const error = new Error('Image error');
+                    error.statusCode = 422;
+                    next(error);
+                });
             return user.save();
         })
         .then(user => {
