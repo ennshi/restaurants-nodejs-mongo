@@ -1,5 +1,6 @@
 const Restaurant = require('../models/restaurant');
 const {sortParse, clearImage} = require('./helpers');
+const {minifyAndResize} = require('../middlewares/image-upload');
 const DEFAULT_PHOTO = 'public/img/restaurants/default.png';
 
 exports.getRestaurants = (req, res, next) => {
@@ -63,14 +64,22 @@ exports.createRestaurant = (req, res, next) => {
         throw error;
     }
     const {name, description, address, featured} = req.body;
-    const photoUrl = req.file ? req.file.path.replace( /\\/g, '/') : DEFAULT_PHOTO;
-        const restaurant = new Restaurant({
+    const photoUrl = req.file ? `${req.file.path.replace( /\\/g, '/').split('.')[0]}-optimized.jpeg` : DEFAULT_PHOTO;
+    const restaurant = new Restaurant({
         name,
         description,
         photoUrl,
         featured,
         address
     });
+    if(req.file) {
+        minifyAndResize(req.file, 560)
+            .catch(() => {
+                const error = new Error('Image error');
+                error.statusCode = 422;
+                next(error);
+            });
+    }
     restaurant.save()
         .then(restaurant => {
             res.status(201).json(restaurant);
@@ -106,7 +115,13 @@ exports.updateRestaurant = (req, res, next) => {
                 if(restaurant.photoUrl !== DEFAULT_PHOTO) {
                     clearImage(restaurant.photoUrl);
                 }
-                restaurant.photoUrl = req.file.path.replace( /\\/g, '/');
+                restaurant.photoUrl = `${req.file.path.replace( /\\/g, '/').split('.')[0]}-optimized.jpeg`;
+                minifyAndResize(req.file, 560)
+                    .catch(() => {
+                        const error = new Error('Image error');
+                        error.statusCode = 422;
+                        next(error);
+                    });
             }
             return restaurant.save();
         })
