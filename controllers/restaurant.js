@@ -181,10 +181,10 @@ const filterParse = (filterTerm) => {
     let regexpFilter = '';
     if(filterTerm.match(/\W/)) {
         filterTerm.split(/\W/).forEach(word => {
-            regexpFilter += `(?=.*${word})`
+            regexpFilter += `(?=.*${word}($|[ ,-]))`;
         });
     } else {
-        regexpFilter = filterTerm;
+        regexpFilter = `${filterTerm}($|[ ,-])`;
     }
     const searchObj = {$regex : regexpFilter, $options: 'i'};
     filter = { searchField: {...searchObj} };
