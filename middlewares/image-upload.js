@@ -1,3 +1,4 @@
+const fs = require('fs');
 const multer = require('multer');
 const {v4: uuidv4} = require('uuid');
 const path = require('path');
@@ -31,7 +32,7 @@ const fileFilter = (req, file, cb) => {
 exports.uploadAvatar = (req, res, next) => {
     multer({
         limits: {
-            fileSize: 2000000
+            fileSize: 5000000
         },
         storage: storage('avatars'),
         fileFilter
@@ -70,4 +71,5 @@ exports.minifyAndResize = async (img, size) => {
         })
         .resize(size, size)
         .toFile(newPath);
+    fs.unlinkSync(img.path);
 };
