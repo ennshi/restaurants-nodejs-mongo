@@ -223,7 +223,7 @@ const pipelineGetRestaurants = ({filter, sort, curPage, perPage}) => {
                 reviews: 1,
                 avgRating: 1
             }},
-        { $sort: {...sort} },
+        { $sort: {...sort, name: 1} },
         { $skip: ((curPage - 1) * perPage) },
         { $limit: perPage },
     ];
