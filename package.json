@@ -1,0 +1,38 @@
+{
+  "name": "restaurants-nodejs-mongo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "env-cmd -f ./config/test.env jest --watch --runInBand",
+    "dev": "env-cmd -f ./config/dev.env nodemon app.js",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ennshi/restaurants-nodejs-mongo.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ennshi/restaurants-nodejs-mongo/issues"
+  },
+  "homepage": "https://github.com/ennshi/restaurants-nodejs-mongo#readme",
+  "devDependencies": {
+    "env-cmd": "^10.1.0",
+    "jest": "^26.2.2",
+    "nodemon": "^2.0.4"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "country-code-lookup": "0.0.17",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.9.26",
+    "multer": "^1.4.2",
+    "node-geocoder": "^3.27.0",
+    "sharp": "^0.26.2",
+    "uuid": "^8.3.0"
+  }
+}
