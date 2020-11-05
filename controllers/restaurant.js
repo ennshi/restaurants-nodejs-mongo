@@ -46,9 +46,8 @@ exports.getRestaurant = (req, res, next) => {
         })
         .then(restaurant => {
             res.status(200).json({
-                restaurant,
-                reviews: restaurant.reviews,
-                reviewsStat: resultReviews(restaurant.reviews)
+                restaurant: {...restaurant._doc, ...resultReviews(restaurant.reviews)},
+                reviews: restaurant.reviews
             });
         })
         .catch((err) => {
