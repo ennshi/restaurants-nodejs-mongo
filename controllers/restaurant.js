@@ -171,19 +171,21 @@ const filterParse = (filterTerm) => {
     if(filterTerm.match(/::/)) {
         const filterParsed = filterTerm.split('::');
         if(filterParsed[0] === 'featured') {
-            filter[filterParsed[0]] = (filterParsed[1] == 'true');
+            filter[filterParsed[0]] = (filterParsed[1] === 'true');
         } else {
             filter[filterParsed[0]] = filterParsed[1];
         }
         return filter;
     }
     let regexpFilter = '';
-    if(filterTerm.match(/\W/)) {
-        filterTerm.split(/\W/).forEach(word => {
-            regexpFilter += `(?=.*${word}($|[ ,-]))`;
+    if(filterTerm.match(/[-_ ,]/)) {
+        filterTerm.split(/[-_ ,]/).forEach(word => {
+            if(word) {
+                regexpFilter += `(?=.*${word}($|[-_ ,]))`;
+            }
         });
     } else {
-        regexpFilter = `${filterTerm}($|[ ,-])`;
+        regexpFilter = `${filterTerm}($|[-_ ,])`;
     }
     const searchObj = {$regex : regexpFilter, $options: 'i'};
     filter = { searchField: {...searchObj} };
