@@ -1,5 +1,5 @@
 const Restaurant = require('../models/restaurant');
-const {sortParse, clearImage} = require('./helpers');
+const {sortParse, clearImage, createError} = require('./helpers');
 const {minifyAndResize} = require('../middlewares/image-upload');
 const DEFAULT_PHOTO = 'public/img/restaurants/default.png';
 
@@ -35,9 +35,7 @@ exports.getRestaurant = (req, res, next) => {
     Restaurant.findById(restaurantId)
         .then(restaurant => {
             if (!restaurant) {
-                const error = new Error('Restaurant not found');
-                error.statusCode = 404;
-                throw error;
+                throw createError(404, 'Restaurant not found');
             }
             return restaurant.populate({
                 path: 'reviews'
@@ -57,10 +55,7 @@ exports.getRestaurant = (req, res, next) => {
 
 exports.createRestaurant = (req, res, next) => {
     if(!req.errors.isEmpty) {
-        const error = new Error('Validation failed');
-        error.errors = req.errors.errors;
-        error.statusCode = 422;
-        throw error;
+        throw createError(422, 'Validation failed', req.errors.errors);
     }
     const {name, description, address, featured} = req.body;
     const photoUrl = req.file ? `${req.file.path.replace( /\\/g, '/').split('.')[0]}-optimized.jpeg` : DEFAULT_PHOTO;
@@ -74,9 +69,7 @@ exports.createRestaurant = (req, res, next) => {
     if(req.file) {
         minifyAndResize(req.file, 560)
             .catch(() => {
-                const error = new Error('Image error');
-                error.statusCode = 422;
-                next(error);
+                next(createError(422, 'Image error'));
             });
     }
     restaurant.save()
@@ -90,19 +83,14 @@ exports.createRestaurant = (req, res, next) => {
 
 exports.updateRestaurant = (req, res, next) => {
     if(!req.errors.isEmpty) {
-        const error = new Error('Validation failed');
-        error.errors = req.errors.errors;
-        error.statusCode = 422;
-        throw error;
+        throw createError(422, 'Validation failed', req.errors.errors);
     }
     const restaurantId = req.params.restaurantId;
     const {name, description, address, featured} = req.body;
     Restaurant.findById(restaurantId)
         .then(restaurant => {
             if(!restaurant) {
-                const error = new Error('Restaurant not found');
-                error.statusCode = 404;
-                throw error;
+                throw createError(404, 'Restaurant not found');
             }
             Object.assign(restaurant, {
                 name,
@@ -117,9 +105,7 @@ exports.updateRestaurant = (req, res, next) => {
                 restaurant.photoUrl = `${req.file.path.replace( /\\/g, '/').split('.')[0]}-optimized.jpeg`;
                 minifyAndResize(req.file, 560)
                     .catch(() => {
-                        const error = new Error('Image error');
-                        error.statusCode = 422;
-                        next(error);
+                        next(createError(422, 'Image error'));
                     });
             }
             return restaurant.save();
@@ -138,9 +124,7 @@ exports.deleteRestaurant = (req, res, next) => {
     Restaurant.findById(restaurantId)
         .then(restaurant => {
             if(!restaurant) {
-                const error = new Error('Restaurant not found');
-                error.statusCode = 404;
-                throw error;
+                throw createError(404, 'Restaurant not found');
             }
             currentPhotoUrl = restaurant.photoUrl;
             return restaurant.remove();

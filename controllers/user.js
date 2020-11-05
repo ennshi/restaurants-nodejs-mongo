@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 
 const User = require('../models/user');
-const { sortParse, filterParse, clearImage } = require('./helpers');
+const { sortParse, filterParse, clearImage, createError } = require('./helpers');
 const {minifyAndResize} = require('../middlewares/image-upload');
 const DEFAULT_AVATAR = 'public/img/avatars/default.png';
 
@@ -44,9 +44,7 @@ exports.getUser = (req, res, next) => {
     User.findById(userId)
         .then(user => {
             if (!user) {
-                const error = new Error('User not found');
-                error.statusCode = 404;
-                throw error;
+                throw createError(404, 'User not found');
             }
             return user.populate({
                 path: 'reviews'
@@ -63,20 +61,14 @@ exports.getUser = (req, res, next) => {
 
 exports.createUser = (req, res, next) => {
     if (!req.errors.isEmpty) {
-        const error = new Error('Validation failed');
-        error.errors = req.errors.errors;
-        error.statusCode = 422;
-        throw error;
+        throw createError(422, 'Validation failed', req.errors.errors);
     }
     const {username, email, password} = req.body;
     const photoUrl = DEFAULT_AVATAR;
     return User.findOne({email})
         .then((userInDB) => {
             if (userInDB) {
-                const error = new Error('Validation failed');
-                error.errors = {email: 'Email address already exists'};
-                error.statusCode = 422;
-                throw error;
+                throw createError(422, 'Validation failed', {email: 'Email address already exists'});
             }
             return bcrypt.hash(password.trim(), 12);
         })
@@ -99,10 +91,7 @@ exports.createUser = (req, res, next) => {
 
 exports.updateUser = (req, res, next) => {
     if(!req.errors.isEmpty) {
-        const error = new Error('Validation failed');
-        error.errors = req.errors.errors;
-        error.statusCode = 422;
-        throw error;
+        throw createError(422, 'Validation failed', req.errors.errors);
     }
     const userId = req.userId || req.params.userId;
     const { username, email, password } = req.body;
@@ -110,19 +99,14 @@ exports.updateUser = (req, res, next) => {
     User.findById(userId)
         .then(user => {
             if (!user) {
-                const error = new Error('User not found');
-                error.statusCode = 404;
-                throw error;
+                throw createError(404, 'User not found');
             }
             currentUser = user;
             return User.findOne({email});
         })
         .then(user => {
             if(user && user._id.toString() !== userId ) {
-                const error = new Error('Validation failed');
-                error.errors = {email: 'Email address already exists'};
-                error.statusCode = 422;
-                throw error;
+                throw createError(422, 'Validation failed', {email: 'Email address already exists'});
             }
             if(!password) {
                 Object.assign(currentUser, {
@@ -154,9 +138,7 @@ exports.deleteUser = (req, res, next) => {
     User.findById(userId)
         .then(user => {
             if(!user) {
-                const error = new Error('User not found');
-                error.statusCode = 404;
-                throw error;
+                throw createError(404, 'User not found');
             }
             return user.remove(userId);
         })
@@ -177,9 +159,7 @@ exports.updateUserStatus = (req, res, next) => {
     User.findById(userId)
         .then(user => {
             if(!user) {
-                const error = new Error('User not found');
-                error.statusCode = 404;
-                throw error;
+                throw createError(404, 'User not found');
             }
             Object.assign(user, {
                 status
@@ -200,9 +180,7 @@ exports.setAvatar = (req, res, next) => {
     User.findById(req.userId)
         .then(user => {
             if(!user) {
-                const error = new Error('User not found');
-                error.statusCode = 404;
-                throw error;
+                throw createError(404, 'User not found');
             }
             pastPhotoUrl = user.photoUrl;
             Object.assign(user, {
@@ -210,9 +188,7 @@ exports.setAvatar = (req, res, next) => {
             });
             minifyAndResize(req.file, 160)
                 .catch(() => {
-                    const error = new Error('Image error');
-                    error.statusCode = 422;
-                    next(error);
+                    next(createError(422, 'Image error'));
                 });
             return user.save();
         })
