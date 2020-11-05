@@ -21,3 +21,10 @@ exports.clearImage = filePath => {
         console.log(err);
     });
 };
+
+exports.createError = (status, message, errors) => {
+    const newErr = new Error(message);
+    newErr.statusCode = status;
+    newErr.errors = errors ? errors : {server: message};
+    return newErr;
+};
