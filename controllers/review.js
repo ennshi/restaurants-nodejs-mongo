@@ -1,3 +1,4 @@
+const {MODIFICATION_PERIOD} = require('../constants/time');
 const Review = require('../models/review');
 const {sortParse, filterParse} = require('./helpers');
 
@@ -80,6 +81,12 @@ exports.updateReview = (req, res, next) => {
             if(review.creator.toString() !== req.userId) {
                 const error = new Error('Authorization failed');
                 error.statusCode(401);
+                throw error;
+            }
+            if(Date.now() - (new Date(review.createdAt)) >= MODIFICATION_PERIOD) {
+                const error = new Error('Modification period has expired');
+                error.statusCode = 403;
+                error.errors = { server: error.message };
                 throw error;
             }
             Object.assign(review, {
