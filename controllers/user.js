@@ -54,7 +54,7 @@ exports.getUser = (req, res, next) => {
                 .execPopulate();
         })
         .then(user => {
-            res.status(200).json({user, reviews: user.reviews});
+            res.status(200).json({user: {...user._doc, reviews: user.reviews}});
         })
         .catch((err) => {
             next(err);
