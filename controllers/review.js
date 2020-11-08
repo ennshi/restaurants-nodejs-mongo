@@ -1,5 +1,6 @@
+const {MODIFICATION_PERIOD} = require('../constants/time');
 const Review = require('../models/review');
-const {sortParse, filterParse} = require('./helpers');
+const {sortParse, filterParse, createError} = require('./helpers');
 
 exports.getReviews = (req, res, next) => {
     const curPage = +req.query.page || 1;
@@ -35,10 +36,7 @@ exports.getReviews = (req, res, next) => {
 
 exports.createReview = (req, res, next) => {
     if(!req.errors.isEmpty) {
-        const error = new Error('Validation failed');
-        error.errors = req.errors.errors;
-        error.statusCode = 422;
-        throw error;
+        throw createError(422, 'Validation failed', req.errors.errors);
     }
     const {text, rating, restaurant} = req.body;
     const creator = req.userId;
@@ -63,24 +61,20 @@ exports.createReview = (req, res, next) => {
 
 exports.updateReview = (req, res, next) => {
     if(!req.errors.isEmpty) {
-        const error = new Error('Validation failed');
-        error.errors = req.errors.errors;
-        error.statusCode = 422;
-        throw error;
+        throw createError(422, 'Validation failed', req.errors.errors);
     }
     const reviewId = req.params.reviewId;
     const {text, rating} = req.body;
     Review.findById(reviewId)
         .then(review => {
             if(!review) {
-                const error = new Error('Review not found');
-                error.statusCode(404);
-                throw error;
+                throw createError(404, 'Review not found');
             }
             if(review.creator.toString() !== req.userId) {
-                const error = new Error('Authorization failed');
-                error.statusCode(401);
-                throw error;
+                throw createError(401, 'Authorization failed');
+            }
+            if(Date.now() - (new Date(review.createdAt)) >= MODIFICATION_PERIOD) {
+                throw createError(403, 'Modification period has expired');
             }
             Object.assign(review, {
                 text: text.trim(),
@@ -101,14 +95,10 @@ exports.deleteReview = (req, res, next) => {
     Review.findById(reviewId)
         .then(review => {
             if(!review) {
-                const error = new Error('Review not found');
-                error.statusCode(404);
-                throw error;
+                throw createError(404, 'Review not found');
             }
             if(review.creator.toString() !== req.userId) {
-                const error = new Error('Authorization failed');
-                error.statusCode(401);
-                throw error;
+                throw createError(401, 'Authorization failed');
             }
             return review.remove(reviewId);
         })
